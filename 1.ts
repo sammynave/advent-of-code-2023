@@ -115,3 +115,38 @@ const extractValues = (rows: Array<string>): Array<number> => {
 export function part2(input) {
   return sum(extractValues(input.split("\n").map((row) => row.trim())));
 }
+
+export function part2v2(input) {
+  // new strategy: swap out numerals for shorthand with embedded digit.
+  // this way we don't have to care about finding numerals and converting them.
+  // just replace everything and grab the first and last digits.
+  const numeralsSymbols = {
+    one: "o1e",
+    two: "t2o",
+    three: "t3e",
+    four: "f4",
+    five: "f5e",
+    six: "s6x",
+    seven: "s7n",
+    eight: "e8t",
+    nine: "n9e",
+  };
+
+  Object.entries(numeralsSymbols).forEach(
+    ([key, value]) => (input = input.replaceAll(key, value))
+  );
+  const firstDigit = /\d/;
+  const lastDigit = /(\d)(?!.*\d)/;
+  const numbers = input
+    .split("\n")
+    // using `lastDigit` regex is ~2x faster than line.split('').reverse().join('').match(firstDigit)
+    .map((line) =>
+      Number(
+        `${Number(line.match(firstDigit))}${Number(
+          line.match(lastDigit)?.[0] ?? 0
+        )}`
+      )
+    );
+
+  return sum(numbers);
+}

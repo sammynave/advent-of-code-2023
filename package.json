@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "bench": "vitest bench",
     "test": "vitest"
   },
   "keywords": [],

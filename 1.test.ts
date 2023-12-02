@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { part1, part2 } from "./1.js";
+import { part1, part2, part2v2 } from "./1.js";
 
 test("part1 - the example input", () => {
   const input = `1abc2
@@ -26,11 +26,27 @@ test("part2 - the example input", () => {
   expect(part2(input)).toBe(281);
 });
 
+test("part2v2 - the example input", () => {
+  const input = `two1nine
+  eightwothree
+  abcone2threexyz
+  xtwone3four
+  4nineeightseven2
+  zoneight234
+  7pqrstsixteen`;
+
+  expect(part2v2(input)).toBe(281);
+});
+
 test("part2 - the actual answer", () => {
   expect(part2(input())).toBe(53268);
 });
 
-function input() {
+test("part2v2 - the actual answer", () => {
+  expect(part2v2(input())).toBe(53268);
+});
+
+export function input() {
   return `eight9fhstbssrplmdlncmmqqnklb39ninejz
   three656
   ppjvndvknbtpfsncplmhhrlh5
