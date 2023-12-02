@@ -1,5 +1,4 @@
-import { log } from "console";
-import { sum } from "../utils";
+import { product, sum } from "../utils";
 
 /*
   Part 1
@@ -34,6 +33,7 @@ const inputToGames = (input: string) => {
 		.map(lineToPulls)
 		.map((pulls, idx) => ({ id: idx + 1, pulls }));
 };
+
 const isPossible = (game: Game): boolean => {
 	return game.pulls.every(
 		({ green = 0, blue = 0, red = 0 }) =>
@@ -54,5 +54,26 @@ export function part1(input: string) {
 /*
   Part 2
 */
-
-export function part2(input: string) {}
+export function part2(input: string) {
+	const games = inputToGames(input);
+	const products = games.map((game) => {
+		const initialAcc = { red: 0, green: 0, blue: 0 };
+		const maxes = game.pulls.reduce<typeof initialAcc>(
+			(acc, { red = 0, green = 0, blue = 0 }) => {
+				if (red > acc.red) {
+					acc.red = red;
+				}
+				if (green > acc.green) {
+					acc.green = green;
+				}
+				if (blue > acc.blue) {
+					acc.blue = blue;
+				}
+				return acc;
+			},
+			initialAcc
+		);
+		return product(Object.values(maxes));
+	});
+	return sum(products);
+}
