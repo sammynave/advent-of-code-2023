@@ -1,6 +1,6 @@
 import { bench } from "vitest";
-import { input } from "./1.test";
-import { part2, part2v2 } from "./1";
+import { input } from "./input.js";
+import { part2, part2v2 } from ".";
 
 bench("part2 - benchmark", () => {
   part2(input());
