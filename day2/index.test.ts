@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { part1, part2 } from "./index.js";
 import { input } from "./input.js";
-import { product } from "../utils.js";
 
 test("part1 - the example input", () => {
 	const input = `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green

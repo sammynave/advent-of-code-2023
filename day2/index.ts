@@ -17,6 +17,8 @@ const diceCollection = {
 	blue: 14,
 };
 
+//--Utils
+
 const lineToPulls = (line: string): Pull[] =>
 	line
 		.split(":")[1]
