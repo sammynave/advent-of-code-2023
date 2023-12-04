@@ -1,79 +1,68 @@
-/*
-467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..
-
-step 1. create data structures
-given [
-	`467..114..`,
-	`...*......`
-]
-numberLocations = [
-	{type: 'number', value: 467, y: 0, span: [0,1,2]},
-	{type: 'number', value: 114, y: 0, span: [5,6,7]},
-]
-symbolLocations = [
-	{type: 'symbol',  value: '*', y: 1 , span: [3]}
-]
-*/
-type Datum = {
-	type: "number" | "symbol" | null;
-	value: number | string | null;
-	y: number | null;
-	span: number[] | null;
+type Number = {
+	type: "number";
+	value: number;
+	y: number;
+	span: number[];
 };
+
+type Symbol = {
+	type: "symbol";
+	value: string;
+	y: number;
+	span: number[];
+};
+
+type NullDatum = {
+	type: null;
+	value: null;
+	y: null;
+	span: null;
+};
+
+type Datum = NullDatum | Number | Symbol;
 
 const nullDatum = () => ({ type: null, value: null, y: null, span: null });
 
+// this would be good to rewrite
 const formatData = (input: string) => {
 	const rows = input.split("\n");
-	console.log({ rows });
-	const numberLocations = [];
-	const symbolLocations = [];
-
+	const numberLocations: Number[] = [];
+	const symbolLocations: Symbol[] = [];
 	let temp: Datum = nullDatum();
 	rows.forEach((row, y) => {
-		if (temp.type === "number") {
-			numberLocations.push(temp);
-		}
-		temp = nullDatum();
+		// Go through each char and build up a temp Datum
 		row.split("").forEach((char, x) => {
 			if (char.match(/\d/)) {
 				if (temp.type === "number") {
+					// extend number and span if we already have a `temp` of type `Number`
 					temp.value = Number(`${temp.value}${char}`);
 					temp.span = temp.span?.concat([x]) ?? [x];
+				} else {
+					// otherwise create a new `temp` of type `Number`
+					temp = {
+						value: Number(char),
+						type: "number",
+						y,
+						span: [x],
+					};
 				}
-
-				if (temp.type === null) {
-					temp.value = Number(char);
-					temp.type = "number";
-					temp.y = y;
-					temp.span = [x];
-				}
-			} else if (char !== ".") {
-				if (temp.type === "number") {
-					numberLocations.push(temp);
-				}
-				temp = nullDatum();
-
-				symbolLocations.push({
-					type: "symbol",
-					value: char,
-					y,
-					span: [x],
-				});
 			} else {
+				// If temp is currently a `Number`, commit it
 				if (temp.type === "number") {
 					numberLocations.push(temp);
 				}
 
+				if (char !== ".") {
+					// since symbols can't span multiple indicies, commit it immediately
+					symbolLocations.push({
+						type: "symbol",
+						value: char,
+						y,
+						span: [x],
+					});
+				}
+
+				// Reset temp
 				temp = nullDatum();
 			}
 		});
@@ -87,27 +76,32 @@ const formatData = (input: string) => {
 
 /*
 step 2. iterate through numbers and look for adjacent symbol locations
-partNumbers =  []
-numberLocations.forEach((number) => {
-	const possibleSymbols = symbolLocations.filter(({y}) => {
-		return y === number.y || y === number.y - 1  || y === number.y + 1
-	})
-	possibleSymbols.forEach((symbol) => {
-		if (isAdjacent(number, symbol)) {
-			partNumbers.push(number)
-		}
-	})
-})
 */
+const isAdjacent = ({ number, symbol }) =>
+	number.span.some(
+		(x) =>
+			(symbol.y === number.y && symbol.span[0] === x - 1) || // left
+			(symbol.y === number.y - 1 && symbol.span[0] === x - 1) || //top-left
+			(symbol.y === number.y - 1 && symbol.span[0] === x) || //top
+			(symbol.y === number.y - 1 && symbol.span[0] === x + 1) || //top-right
+			(symbol.y === number.y && symbol.span[0] === x + 1) || //right
+			(symbol.y === number.y + 1 && symbol.span[0] === x + 1) || //bottom-right
+			(symbol.y === number.y + 1 && symbol.span[0] === x) || //bottom
+			(symbol.y === number.y + 1 && symbol.span[0] === x - 1) //bottom-left
+	);
+
+const getPartNumbers = ({ numberLocations, symbolLocations }) =>
+	numberLocations.flatMap((number) =>
+		symbolLocations.map((symbol) =>
+			isAdjacent({ number, symbol }) ? number.value : 0
+		)
+	);
 
 /*
 step 3. sum part numbers
-partNumbers.reduce((sum, {number}) => sum + number, 0)
 */
-export const part1 = (input) => {
-	const { numberLocations, symbolLocations } = formatData(input);
-	console.log(numberLocations);
-	console.log(symbolLocations);
-};
+const sum = (partNumbers) => partNumbers.reduce((sum, value) => sum + value, 0);
+
+export const part1 = (input) => sum(getPartNumbers(formatData(input)));
 
 export const part2 = (input) => {};

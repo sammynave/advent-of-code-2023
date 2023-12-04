@@ -16,9 +16,9 @@ test("part1 - the example input", () => {
 	expect(part1(input)).toBe(4361);
 });
 
-// test("part1 - the actual input", () => {
-// 	expect(part1(input())).toBe(1853);
-// });
+test("part1 - the actual input", () => {
+	expect(part1(input())).toBe(530495);
+});
 
 // test("part2 - example input", () => {
 // 	const input = ``;
