@@ -1,4 +1,4 @@
-import { partition, range } from "../utils";
+import { partition } from "../utils";
 
 class SourceDestinationMap {
   destinationRangeStart: number;
@@ -89,6 +89,44 @@ export const part1 = (input) => {
 
 type SeedRangeStart = number;
 type SeedRangeLength = number;
+function getLocations(maps) {
+  return function* (seed, end) {
+    while (seed <= end) {
+      let nextSourceId = seed;
+      let currentMapIdx = 0;
+      while (currentMapIdx < maps.length) {
+        const map = maps[currentMapIdx];
+        if (map.name === "humidity-to-location") {
+          yield map.getDestinationFromSource(nextSourceId);
+        } else {
+          nextSourceId = map.getDestinationFromSource(nextSourceId);
+        }
+        currentMapIdx++;
+      }
+
+      seed++;
+    }
+  };
+}
+
+function* outer(seeds, maps) {
+  const gen = getLocations(maps);
+  let lowestLocation = Infinity;
+  let seedIdx = 0;
+  while (seedIdx < seeds.length) {
+    let [seed, seedLength] = seeds[seedIdx];
+    const end = seed + seedLength - 1;
+    for (let location of gen(seed, end)) {
+      if (location < lowestLocation) {
+        lowestLocation = location;
+        yield lowestLocation;
+      }
+    }
+    seedIdx++;
+  }
+}
+
+// This finishes but takes 5 minutes
 export const part2 = (input) => {
   const [seedStr, ...mapsStr] = input.split("\n\n");
   let lowestLocation = Infinity;
@@ -96,26 +134,14 @@ export const part2 = (input) => {
     array: seedStr.match(/\d+/g).map(Number),
     partitionSize: 2,
   });
+
   const maps = convertToMaps(mapsStr);
 
-  seeds.forEach(([seedRangeStart, seedLength]) => {
-    let seed = seedRangeStart;
-    const end = seedRangeStart + seedLength - 1;
-    while (seed <= end) {
-      let nextSourceId = seed;
-      maps.forEach((map) => {
-        if (map.name === "humidity-to-location") {
-          const location = map.getDestinationFromSource(nextSourceId);
-          if (location < lowestLocation) {
-            lowestLocation = location;
-          }
-        } else {
-          nextSourceId = map.getDestinationFromSource(nextSourceId);
-        }
-      });
-      seed++;
+  for (let result of outer(seeds, maps)) {
+    if (result < lowestLocation) {
+      lowestLocation = result;
     }
-  });
+  }
 
   return lowestLocation;
 };
