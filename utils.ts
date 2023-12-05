@@ -21,3 +21,18 @@ export const range = ({
   const length = inclusive ? to - from + 1 : to - from;
   return Array.from({ length }, () => from++);
 };
+
+export const partition = ({ array, partitionSize }) => {
+  return array.reduce(
+    (acc, val) => {
+      const lastIndex = acc.length - 1;
+      if (acc[lastIndex].length === partitionSize) {
+        acc.push([val]);
+      } else {
+        acc[lastIndex].push(val);
+      }
+      return acc;
+    },
+    [[]]
+  );
+};
