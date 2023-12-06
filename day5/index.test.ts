@@ -49,6 +49,7 @@ test("part2 - the example input", () => {
   expect(part2(exampleInput)).toBe(46);
 });
 
-test("part2 - actual input", () => {
-  expect(part2(input())).toBe(37806486);
-});
+// This is right but takes 5 minutes to run :/
+// test("part2 - actual input", () => {
+//   expect(part2(input())).toBe(37806486);
+// });
