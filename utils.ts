@@ -36,3 +36,16 @@ export const partition = ({ array, partitionSize }) => {
 		[[]]
 	);
 };
+
+const greatestCommonDenominator = (a: number, b: number): number => {
+	while (b !== 0) {
+		let temp = b;
+		b = a % b;
+		a = temp;
+	}
+	return a;
+};
+
+export const leastCommonMultiple = (a: number, b: number): number => {
+	return (a * b) / greatestCommonDenominator(a, b);
+};

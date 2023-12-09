@@ -1,3 +1,5 @@
+import { leastCommonMultiple } from "../utils";
+
 enum RL {
 	"L" = 0,
 	"R" = 1,
@@ -27,13 +29,12 @@ const parse = (input): [Instructions, NodeDirections[]] => {
 	return [instructions, nodes];
 };
 
-export const part1 = (input) => {
-	const [instructions, nodes] = parse(input);
+const calculateSteps = ({ nodes, startsWith, endsWith, instructions }) => {
 	let steps = 0;
-	let currentNode = nodes.find((n) => n[0] === "AAA");
+	let currentNode = nodes.find((n) => n[0].startsWith(startsWith));
 	let currentDirection = 0;
 
-	for (let i = 0; currentNode[0] !== "ZZZ"; i++) {
+	for (let i = 0; !currentNode[0].endsWith(endsWith); i++) {
 		const instruction = instructions[currentDirection];
 		currentNode = nodes.find((n) => n[0] === currentNode[1][RL[instruction]]);
 		steps++;
@@ -48,27 +49,39 @@ export const part1 = (input) => {
 	return steps;
 };
 
+export const part1 = (input) => {
+	const [instructions, nodes] = parse(input);
+	return calculateSteps({
+		startsWith: "AAA",
+		endsWith: "ZZZ",
+		nodes,
+		instructions,
+	});
+};
+
 const startingNodes = (nodes) => nodes.filter((n) => n[0].endsWith("A"));
 
-export const part2 = (input) => {
+// I doubt this will ever finish with full input
+export const part2Ineffecient = (input) => {
 	const [instructions, nodes] = parse(input);
 	let steps = 0;
 	let currentNodes = startingNodes(nodes);
 	const numOfNodes = currentNodes.length;
 	let currentDirection = 0;
+	// Instead of running until all three end in `Z`.
+	// we could find the steps for each startingNode,
+	// then find the least common multiple between them
 	for (let i = 0; !currentNodes.every((n) => n[0].endsWith("Z")); i++) {
 		const instruction = instructions[currentDirection];
 		const nextNodes = [];
-		nodes.forEach((n) => {
-			if (numOfNodes === nextNodes.length) {
-				return;
-			}
+		for (let n = 0; nextNodes.length < numOfNodes; n++) {
 			currentNodes.forEach((currentNode) => {
-				if (n[0] === currentNode[1][RL[instruction]]) {
-					nextNodes.push(n);
+				if (nodes[n][0] === currentNode[1][RL[instruction]]) {
+					nextNodes.push(nodes[n]);
 				}
 			});
-		});
+		}
+
 		currentNodes = nextNodes;
 
 		steps++;
@@ -79,6 +92,15 @@ export const part2 = (input) => {
 			currentDirection++;
 		}
 	}
-
 	return steps;
+};
+
+export const part2 = (input) => {
+	const [instructions, nodes] = parse(input);
+	return startingNodes(nodes)
+		.map(([str]) => str)
+		.map((startsWith) =>
+			calculateSteps({ startsWith, endsWith: "Z", instructions, nodes })
+		)
+		.reduce(leastCommonMultiple);
 };
